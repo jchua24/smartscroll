@@ -2,13 +2,17 @@
 "use strict";
 
 
-function SmartScroll() {
+//import html2canvas from './html2canvas.esm.js'; 
+
+const SmartScroll = function() {
 
 	const _self = {}
 
     //initial calculations + data structures for time tracking 
 	_self.initialize = function() { 
         console.log("initialize!");
+
+        //TO-DO: perform calculations 
 
         //create modal 
         const modalDiv = document.createElement("div"); 
@@ -18,18 +22,28 @@ function SmartScroll() {
         const modalContent = document.createElement("div"); 
         modalContent.className = "modal-content"; 
 
-        const placeholder = document.createElement("p"); 
-        placeholder.innerHTML = "To-Do!"; 
+        const settingsIcon = document.createElement("button"); 
+        settingsIcon.innerHTML = "&#9881;"; 
+        settingsIcon.className = "button settings"
+        settingsIcon.onclick = _self.settingsOpen;  
 
         const closeButton = document.createElement("button"); 
-        closeButton.className = "close"; 
         closeButton.innerHTML = "Close";
+        closeButton.className = "button close"; 
         closeButton.onclick = _self.close;
 
 
+        modalContent.appendChild(settingsIcon); 
         modalContent.appendChild(closeButton); 
-        modalContent.appendChild(placeholder); 
         modalDiv.appendChild(modalContent); 
+
+        //TO-DO: initialize preview canvas 
+        // html2canvas(document.body).then(function(canvas) {
+        //     document.body.appendChild(canvas);
+        // });
+
+
+        //TO-DO: initialize time tracker canvas
 
         //add modal to DOM (in html body) 
         const body = document.getElementsByTagName("BODY")[0];
@@ -50,7 +64,19 @@ function SmartScroll() {
         modalDiv.style.display = "none";
     }
 
+    //open smartscroll 
+    _self.settingsOpen = function() { 
+        console.log("open settings!");
+    }
+
+    //open smartscroll 
+    _self.settingsClose = function() { 
+        console.log("close settings!");
+    }
+
 	return _self
 }
+
+export default SmartScroll; 
 
 
