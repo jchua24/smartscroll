@@ -43,14 +43,16 @@ const SmartScroll = function() {
 
         //TO-DO: initialize time tracker canvas
 
+
+
         //add modal to DOM (in html body) 
         const body = document.getElementsByTagName("BODY")[0];
         body.appendChild(modalDiv); 
 
-        //initialize preview canvas 
+        //initialize preview canvas on modal
         _self.updatePreviewCanvas(0, true); 
 
-        //add event listeners for scroll and window resize 
+        //page scroll event handler 
         document.addEventListener('scroll', function(e) {
 
             console.log("window scroll point: " + window.scrollY); 
@@ -67,19 +69,13 @@ const SmartScroll = function() {
                 }
             }
         });
+
 	}
 
     _self.updatePreviewCanvas = function(yPosition, fixedStart) {
         
         //set update flag 
-        _self.updating = true; 
-    
-        //remove existing canvas if exists 
-        var existingCanvas = document.getElementById("SmartScroll-canvas"); 
-        if(existingCanvas !== null) {
-            console.log("found and removing existing canvas!");
-            existingCanvas.parentNode.removeChild(existingCanvas);
-        }
+        _self.updating = true;
 
         var previewArea = document.body.getBoundingClientRect(); 
         var width =  Math.min(3000, previewArea.width); 
@@ -88,10 +84,10 @@ const SmartScroll = function() {
         var startPoint; 
         var endPoint; 
 
-        if(fixedStart) {
+        if(fixedStart) { //starting point fixed 
             startPoint = yPosition; 
             endPoint = Math.min(previewArea.height, yPosition + 20000); 
-        } else {
+        } else { //starting point for range calculated based on given y position 
             var halfRange = (_self.range[1] - _self.range[0]) / 2; 
             startPoint = Math.max(0, yPosition - halfRange); 
             endPoint = Math.min(previewArea.height, yPosition + halfRange); 
@@ -105,11 +101,43 @@ const SmartScroll = function() {
         html2canvas(document.body, {y: startPoint, height: height, width: width}).then(function(canvas) {
 
             var contentDiv = document.getElementById("SmartScroll-content");
+
+            //scale canvas down to appropriate size 
             var newHeight = (0.9 * window.innerHeight); 
             var newWidth = (0.1 * window.innerWidth); 
-
             canvas.style="width: " + newWidth + "px; height: " + newHeight + "px;"
             canvas.id = "SmartScroll-canvas"; 
+
+            //remove existing canvas if exists
+            var existingCanvas = document.getElementById("SmartScroll-canvas"); 
+            if(existingCanvas !== null) {
+                console.log("found and removing existing canvas!");
+                existingCanvas.parentNode.removeChild(existingCanvas);
+            }
+
+
+            //add click event listener to canvas object 
+            canvas.addEventListener('mousedown', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left; 
+                const y = e.clientY - rect.top; 
+
+                //convert Y position on canvas to Y position in current range
+                const proportion = (y / newHeight); 
+                const newPosition = startPoint + (endPoint - startPoint) * proportion; 
+
+                console.log("proportion: " + proportion);
+                
+                //scroll to new Y position 
+                window.scrollTo({
+                    top: newPosition, 
+                    left: window.left, 
+                    behaviour: 'smooth'
+                })
+
+                console.log("x: " + x + " y: " + y)
+            })
+
             contentDiv.appendChild(canvas); 
 
             _self.updating = false; 
