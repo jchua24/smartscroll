@@ -4,16 +4,20 @@ import SmartScroll from "./SmartScroll.js";
 
 let scroll = null; 
 
-console.log("hello");
-
 window.initializeScroll = function() {
-    console.log("initialize");
     scroll = SmartScroll(); 
-    scroll.initialize(); 
+
+    //ability to specify custom styles 
+    const scrollStyles = {
+        'background-color': 'red',
+        'button-color': 'green', 
+        'button-text-color': 'white'
+    }
+
+    scroll.initialize({}); 
 }
 
 window.openScroll = function() {
-    console.log("open!");
     scroll.open(); 
 }
 

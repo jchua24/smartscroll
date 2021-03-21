@@ -11,46 +11,36 @@ const SmartScroll = function() {
     //array to store the start/end points covered by the current preview
     _self.range = []; 
 
+    //flag to determine if modal preview is being refreshed 
     _self.updating = false; 
 
+    //default stylings to be overridden if needed 
+    _self.styling = {
+        'background-color': '#FEFEFE',
+        'button-color': '#AAA', 
+        'button-text-color': '#EFEFEF'
+    } 
+
     //initial calculations + data structures for time tracking 
-	_self.initialize = function() { 
+	_self.initialize = function(scrollStyles) { 
         console.log("initialize!");
 
-        //create modal 
-        const modalDiv = document.createElement("div"); 
-        modalDiv.className = "modal"; 
-        modalDiv.id = "SmartScroll"
+        //create main modal 
+        const mainModal = _self.constructMainModal(); 
 
-        const modalContent = document.createElement("div"); 
-        modalContent.className = "modal-content"; 
-        modalContent.id = "SmartScroll-content"; 
+        //create settings modal 
+        const settingsModal = _self.constructSettingsModal(); 
 
-        const settingsIcon = document.createElement("button"); 
-        settingsIcon.innerHTML = "&#9881;"; 
-        settingsIcon.className = "button settings"
-        settingsIcon.onclick = _self.settingsOpen;  
-
-        const closeButton = document.createElement("button"); 
-        closeButton.innerHTML = "Close";
-        closeButton.className = "button close"; 
-        closeButton.onclick = _self.close;
-
-        modalContent.appendChild(settingsIcon); 
-        modalContent.appendChild(closeButton); 
-
-        modalDiv.appendChild(modalContent); 
-
-        //TO-DO: initialize time tracker canvas
-
-
-
-        //add modal to DOM (in html body) 
-        const body = document.getElementsByTagName("BODY")[0];
-        body.appendChild(modalDiv); 
+        //apply custom styling 
+        _self.applyCustomStyling(scrollStyles); 
 
         //initialize preview canvas on modal
         _self.updatePreviewCanvas(0, true); 
+
+        //add modals to DOM (in html body) 
+        const body = document.getElementsByTagName("BODY")[0];
+        body.appendChild(mainModal); 
+        body.appendChild(settingsModal); 
 
         //page scroll event handler 
         document.addEventListener('scroll', function(e) {
@@ -71,6 +61,153 @@ const SmartScroll = function() {
         });
 
 	}
+
+    _self.constructMainModal = function() {
+
+        const mainModal = document.createElement("div"); 
+        mainModal.className = "modal"; 
+        mainModal.id = "SmartScroll"
+
+        const modalContent = document.createElement("div"); 
+        modalContent.className = "modal-content"; 
+        modalContent.id = "SmartScroll-content"; 
+
+        const settingsIcon = document.createElement("button"); 
+        settingsIcon.innerHTML = "&#9881;"; 
+        settingsIcon.className = "button settings"
+        settingsIcon.onclick = _self.settingsOpen;  
+
+        const closeButton = document.createElement("button"); 
+        closeButton.innerHTML = "Close";
+        closeButton.className = "button close"; 
+        closeButton.onclick = _self.close;
+ 
+        modalContent.appendChild(settingsIcon); 
+        modalContent.appendChild(closeButton); 
+        mainModal.appendChild(modalContent); 
+
+        return mainModal; 
+    }
+
+    _self.constructSettingsModal = function() {
+    
+        const settingsModal = document.createElement("div"); 
+        settingsModal.className = "settings-modal"; 
+        settingsModal.id = "SmartScroll-settings"
+
+        const modalContent = document.createElement("div"); 
+        modalContent.className = "settings-modal-content"; 
+        modalContent.id = "SmartScroll-settings-content"; 
+
+        const closeButton = document.createElement("button"); 
+        closeButton.innerHTML = "Close Settings";
+        closeButton.className = "button close"; 
+        closeButton.onclick = _self.settingsClose;
+
+        modalContent.appendChild(closeButton); 
+
+        //sample colour themes 
+        const themes = [
+            {
+                'name': 'holiday', 
+                'background-color': 'red',
+                'button-color': 'green', 
+                'button-text-color': 'white'
+            }, 
+            {
+                'name': 'USA', 
+                'background-color': 'blue',
+                'button-color': 'red', 
+                'button-text-color': 'white'
+            }, 
+            {
+                'name': 'OVO', 
+                'background-color': 'gold',
+                'button-color': 'black', 
+                'button-text-color': 'gold'
+            }, 
+            {
+                'name': 'greys', 
+                'background-color': 'dark grey',
+                'button-color': 'light grey', 
+                'button-text-color': 'grey'
+            }, 
+            {
+                'name': 'Lakers', 
+                'background-color': 'purple',
+                'button-color': 'yellow', 
+                'button-text-color': 'purple'
+            }
+        ]
+
+        const themesHeader = document.createElement("h1");
+        themesHeader.innerHTML = "Pick a Colour Theme";
+        modalContent.appendChild(themesHeader); 
+
+        //add sample themes to modal
+        for(let i = 0; i < themes.length; i++) {
+            let themeOption = document.createElement("input"); 
+            let themeLabel = document.createElement("label");
+            themeOption.type = "checkbox"; 
+            themeOption.value = themes[i].name;
+            modalContent.appendChild(themeOption); 
+            modalContent.appendChild(themeLabel); 
+            themeLabel.appendChild(document.createTextNode(themes[i].name));
+
+            
+            themeOption.addEventListener('change', (event) => {
+                if(event.currentTarget.checked) {
+                    _self.applyCustomStyling(themes[i]); 
+
+                    //uncheck other boxes 
+                    for(let i = 0; i < modalContent.children.length; i++) {
+                        if(modalContent.children[i].type == "checkbox" && modalContent.children[i].value != event.currentTarget.value) {
+                            modalContent.children[i].checked = false; 
+                        }
+                    }
+                }
+
+                let styleSelected = false; 
+
+                 //uncheck other boxes 
+                 for(let i = 0; i < modalContent.children.length; i++) {
+                    if(modalContent.children[i].checked) {
+                        styleSelected = true;
+                    }
+                }
+                
+                //apply default styles if none selected 
+                if(!styleSelected) {
+                    _self.applyCustomStyling({'background-color': '#FEFEFE', 'button-color': '#AAA', 'button-text-color': '#EFEFEF'}); 
+                }
+            
+            })
+        }
+
+        settingsModal.appendChild(modalContent); 
+ 
+        return settingsModal;
+    }
+
+    _self.applyCustomStyling = function(scrollStyles) {
+
+        if('background-color' in scrollStyles) {
+            document.documentElement.style.setProperty('--modal-background-color', scrollStyles['background-color']);
+        } else {
+            document.documentElement.style.setProperty('--modal-background-color', _self.styling['background-color']);
+        }
+
+        if('button-text-color' in scrollStyles) {
+            document.documentElement.style.setProperty('--modal-button-color', scrollStyles['button-text-color']);
+        } else {
+            document.documentElement.style.setProperty('--modal-button-color', _self.styling['button-text-color']);
+        }
+        if('button-color' in scrollStyles) {
+            document.documentElement.style.setProperty('--modal-button-bg-color', scrollStyles['button-color']);
+        } else {
+            document.documentElement.style.setProperty('--modal-button-bg-color', _self.styling['button-color']);
+        }
+    }
 
     _self.updatePreviewCanvas = function(yPosition, fixedStart) {
         
@@ -103,8 +240,8 @@ const SmartScroll = function() {
             var contentDiv = document.getElementById("SmartScroll-content");
 
             //scale canvas down to appropriate size 
-            var newHeight = (0.9 * window.innerHeight); 
-            var newWidth = (0.1 * window.innerWidth); 
+            var newHeight = (0.92 * window.innerHeight); 
+            var newWidth = (0.13 * window.innerWidth); 
             canvas.style="width: " + newWidth + "px; height: " + newHeight + "px;"
             canvas.id = "SmartScroll-canvas"; 
 
@@ -161,11 +298,15 @@ const SmartScroll = function() {
     //open smartscroll 
     _self.settingsOpen = function() { 
         console.log("open settings!");
+        const modalDiv = document.getElementById("SmartScroll-settings"); 
+        modalDiv.style.display = "block";
     }
 
     //open smartscroll 
     _self.settingsClose = function() { 
         console.log("close settings!");
+        const modalDiv = document.getElementById("SmartScroll-settings"); 
+        modalDiv.style.display = "none";
     }
 
 	return _self

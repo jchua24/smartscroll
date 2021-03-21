@@ -1,32 +1,55 @@
-/* The Modal (background) */
+
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    display: none; 
+    position: fixed; 
+    z-index: 2; 
     top: 0em;
     left: 85%;
-    width: 15%; /* Thin width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    width: 15%; 
+    height: 100%;
+    overflow-y: hidden; 
   }
   
-  /* Modal Content/Box */
   .modal-content {
-    background-color: #fefefe;
-    
+    background-color: var(--modal-background-color); 
     padding: 20px; 
     border: 1px solid #888;
-    height: 100%; /* Could be more or less, depending on screen size */
+    height: 100%;
   }
-  
-  /* The Close Button */
+
+  .settings-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+  }
+
+  .settings-modal-content {
+    background-color: var(--modal-background-color); 
+
+    padding: 20px; 
+    border: 1px solid #888;
+    height: 100%;
+
+    left: 40%; 
+    top: 40%;
+    width: 20%; 
+    height: 20%; 
+  }
+
   .button {
-    color: #aaa;
+    color: var(--modal-button-color);  
+    background-color: var(--modal-button-bg-color); 
     float: right;
     font-size: 1em;
     font-weight: bold;
+    margin-bottom: 10px; 
   }
   
   .button:hover,
