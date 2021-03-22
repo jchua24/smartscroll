@@ -216,14 +216,14 @@ const SmartScroll = function() {
 
         var previewArea = document.body.getBoundingClientRect(); 
         var width =  Math.min(3000, previewArea.width); 
-        var height = Math.min(20000, previewArea.height); 
+        var height = Math.min(9000, previewArea.height); 
 
         var startPoint; 
         var endPoint; 
 
         if(fixedStart) { //starting point fixed 
             startPoint = yPosition; 
-            endPoint = Math.min(previewArea.height, yPosition + 20000); 
+            endPoint = Math.min(previewArea.height, yPosition + 9000); 
         } else { //starting point for range calculated based on given y position 
             var halfRange = (_self.range[1] - _self.range[0]) / 2; 
             startPoint = Math.max(0, yPosition - halfRange); 
@@ -239,10 +239,13 @@ const SmartScroll = function() {
 
             var contentDiv = document.getElementById("SmartScroll-content");
 
-            //scale canvas down to appropriate size 
+            // //scale canvas down to appropriate size 
             var newHeight = (0.92 * window.innerHeight); 
-            var newWidth = (0.13 * window.innerWidth); 
+            var newWidth = (0.12 * window.innerWidth); 
+
             canvas.style="width: " + newWidth + "px; height: " + newHeight + "px;"
+            //canvas.style="width: " + newWidth + "px;"
+            
             canvas.id = "SmartScroll-canvas"; 
 
             //remove existing canvas if exists
