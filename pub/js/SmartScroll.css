@@ -44,13 +44,32 @@
     height: 20%; 
   }
 
+  .canvas-container {
+    position:absolute;
+    top: 4em; 
+  }
+ 
+  .preview-canvas {
+    top: 0;
+    left: 0; 
+    position: absolute;
+  }
+
+  .scroll-canvas {
+    top: var(--scroll-canvas-top);
+    left: 0; 
+    position: absolute;
+    background-color: grey; 
+    opacity: 0.3; 
+    pointer-events: none;
+  }
+
   .button {
     color: var(--modal-button-color);  
     background-color: var(--modal-button-bg-color); 
     float: right;
     font-size: 1em;
     font-weight: bold;
-    margin-bottom: 10px; 
   }
   
   .button:hover,

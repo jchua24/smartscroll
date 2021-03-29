@@ -1,7 +1,5 @@
 /* SmartScroll JS Library Implementation - Joshua Chua (CSC309) */
 "use strict";
-
-
 import html2canvas from './html2canvas.esm.js'; 
 
 const SmartScroll = function() {
@@ -10,6 +8,9 @@ const SmartScroll = function() {
 
     //array to store the start/end points covered by the current preview
     _self.range = []; 
+
+    //store preview canvas height for calculations 
+    _self.preview_height = 0; 
 
     //flag to determine if modal preview is being refreshed 
     _self.updating = false; 
@@ -47,7 +48,7 @@ const SmartScroll = function() {
 
             console.log("window scroll point: " + window.scrollY); 
           
-            if(!_self.updating) {
+            if(!_self.updating) { //update only when another update is not occurring
                 if(window.scrollY + window.innerHeight > _self.range[1]) {
                     //update preview 
                     console.log("updating canvas preview!");
@@ -56,12 +57,16 @@ const SmartScroll = function() {
                     //update preview 
                     console.log("updating canvas preview!");
                     _self.updatePreviewCanvas(window.scrollY, false); 
+                } else {
+                    //update scroll canvas 
+                    _self.updateScrollCanvas(window.scrollY); 
                 }
             }
         });
 
 	}
 
+    //this function constructs the main sidebar in the DOM and returns it as an object
     _self.constructMainModal = function() {
 
         const mainModal = document.createElement("div"); 
@@ -89,6 +94,7 @@ const SmartScroll = function() {
         return mainModal; 
     }
 
+    //this function constructs the settings window as a DOM object and returns it
     _self.constructSettingsModal = function() {
     
         const settingsModal = document.createElement("div"); 
@@ -154,7 +160,7 @@ const SmartScroll = function() {
             modalContent.appendChild(themeLabel); 
             themeLabel.appendChild(document.createTextNode(themes[i].name));
 
-            
+            //event listener to handle a theme-change event 
             themeOption.addEventListener('change', (event) => {
                 if(event.currentTarget.checked) {
                     _self.applyCustomStyling(themes[i]); 
@@ -180,17 +186,15 @@ const SmartScroll = function() {
                 if(!styleSelected) {
                     _self.applyCustomStyling({'background-color': '#FEFEFE', 'button-color': '#AAA', 'button-text-color': '#EFEFEF'}); 
                 }
-            
             })
         }
 
         settingsModal.appendChild(modalContent); 
- 
         return settingsModal;
     }
 
+    //changes the UI styling of the sidebar and any other DOM elements created
     _self.applyCustomStyling = function(scrollStyles) {
-
         if('background-color' in scrollStyles) {
             document.documentElement.style.setProperty('--modal-background-color', scrollStyles['background-color']);
         } else {
@@ -209,11 +213,13 @@ const SmartScroll = function() {
         }
     }
 
+    //generates new preview canvas to reflect the user's current position on the page
     _self.updatePreviewCanvas = function(yPosition, fixedStart) {
         
         //set update flag 
         _self.updating = true;
 
+        //get dimensions of main body element
         var previewArea = document.body.getBoundingClientRect(); 
         var width =  Math.min(3000, previewArea.width); 
         var height = Math.min(9000, previewArea.height); 
@@ -221,6 +227,7 @@ const SmartScroll = function() {
         var startPoint; 
         var endPoint; 
 
+        //calculate new start/end points for vertical range to be displayed 
         if(fixedStart) { //starting point fixed 
             startPoint = yPosition; 
             endPoint = Math.min(previewArea.height, yPosition + 9000); 
@@ -239,28 +246,31 @@ const SmartScroll = function() {
 
             var contentDiv = document.getElementById("SmartScroll-content");
 
-            // //scale canvas down to appropriate size 
+            //modify dimensions of preview canvas
             var newHeight = (0.92 * window.innerHeight); 
             var newWidth = (0.12 * window.innerWidth); 
+            canvas.style="width: " + newWidth + "px; height: " + newHeight + "px;";
+            canvas.id = "SmartScroll-preview-canvas"; 
+            canvas.className = "preview-canvas";
 
-            canvas.style="width: " + newWidth + "px; height: " + newHeight + "px;"
-            //canvas.style="width: " + newWidth + "px;"
+            //record canvas height
+            _self.preview_height = newHeight; 
+
+            //create scroll canvas  
+            _self.scroll_height =  (window.innerHeight / height) * (newHeight); 
+
+            var scrollCanvas = document.createElement("canvas"); 
+            scrollCanvas.id = "SmartScroll-scroll-canvas"; 
+            scrollCanvas.style = "width: " + newWidth + "px; height: " + _self.scroll_height + "px;";
+            scrollCanvas.className = "scroll-canvas"; 
             
-            canvas.id = "SmartScroll-canvas"; 
-
-            //remove existing canvas if exists
-            var existingCanvas = document.getElementById("SmartScroll-canvas"); 
-            if(existingCanvas !== null) {
-                console.log("found and removing existing canvas!");
-                existingCanvas.parentNode.removeChild(existingCanvas);
-            }
-
-
             //add click event listener to canvas object 
             canvas.addEventListener('mousedown', function(e) {
                 const rect = canvas.getBoundingClientRect();
                 const x = e.clientX - rect.left; 
                 const y = e.clientY - rect.top; 
+
+                console.log("x: " + x + " y: " + y)
 
                 //convert Y position on canvas to Y position in current range
                 const proportion = (y / newHeight); 
@@ -275,13 +285,48 @@ const SmartScroll = function() {
                     behaviour: 'smooth'
                 })
 
-                console.log("x: " + x + " y: " + y)
+                //move scroll canvas 
+                _self.updateScrollCanvas(newPosition);
+                
             })
 
-            contentDiv.appendChild(canvas); 
+            //remove existing canvas div if exists
+            var existingCanvasDiv = document.getElementById("SmartScroll-canvas-div"); 
+            if(existingCanvasDiv !== null) {
+                console.log("found and removing existing canvas!");
+                existingCanvasDiv.parentNode.removeChild(existingCanvasDiv);
+            }
+
+            //create new div to store preview canvas and scroll canvas (has same dimensions as preview canvas)
+            var canvasContainer = document.createElement("div"); 
+            canvasContainer.id = "SmartScroll-canvas-div";
+            canvasContainer.style="width: " + newWidth + "px; height: " + newHeight + "px;"
+            canvasContainer.className = "canvas-container";
+
+            if(fixedStart) {
+                _self.updateScrollCanvas(0); 
+            } else {
+                _self.updateScrollCanvas(yPosition); 
+            }
+
+            //add canvases
+            canvasContainer.appendChild(canvas); 
+            canvasContainer.appendChild(scrollCanvas); 
+            
+            //append canvas div
+            contentDiv.appendChild(canvasContainer); 
 
             _self.updating = false; 
         });
+    }
+
+    _self.updateScrollCanvas = function(yPosition) {
+        //takes y position of page, and moves the scroll canvas depending on proportion to current range
+
+        var proportion = (yPosition - _self.range[0]) / (_self.range[1] - _self.range[0]); 
+        var new_canvas_y = proportion * _self.preview_height; 
+
+        document.documentElement.style.setProperty('--scroll-canvas-top', new_canvas_y + "px");
     }
 
     //open smartscroll 
@@ -298,14 +343,14 @@ const SmartScroll = function() {
         modalDiv.style.display = "none";
     }
 
-    //open smartscroll 
+    //open smartscroll settings
     _self.settingsOpen = function() { 
         console.log("open settings!");
         const modalDiv = document.getElementById("SmartScroll-settings"); 
         modalDiv.style.display = "block";
     }
 
-    //open smartscroll 
+    //close smartscroll settings
     _self.settingsClose = function() { 
         console.log("close settings!");
         const modalDiv = document.getElementById("SmartScroll-settings"); 
