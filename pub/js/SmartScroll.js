@@ -10,10 +10,12 @@ const SmartScroll = function() {
     _self.range = []; 
 
     //store preview canvas height for calculations 
-    _self.preview_height = 0; 
+    _self.previewHeight = 0; 
 
     //flag to determine if modal preview is being refreshed 
     _self.updating = false; 
+
+    _self.resizeTimeout = null; 
 
     //default stylings to be overridden if needed 
     _self.styling = {
@@ -63,6 +65,12 @@ const SmartScroll = function() {
                 }
             }
         });
+
+        //window resize event handler - executes 100ms after the last resize event
+        window.onresize = function () {
+            clearTimeout(_self.resizeTimeout); 
+            _self.resizeTimeout = setTimeout(_self.handleWindowResizeEvent, 500);
+        }
 
 	}
 
@@ -232,9 +240,14 @@ const SmartScroll = function() {
             startPoint = yPosition; 
             endPoint = Math.min(previewArea.height, yPosition + 9000); 
         } else { //starting point for range calculated based on given y position 
-            var halfRange = (_self.range[1] - _self.range[0]) / 2; 
+            var currentRangeDiff = _self.range[1] - _self.range[0]; 
+            var halfRange = currentRangeDiff / 2; 
             startPoint = Math.max(0, yPosition - halfRange); 
             endPoint = Math.min(previewArea.height, yPosition + halfRange); 
+
+            if(endPoint - startPoint < currentRangeDiff && startPoint + currentRangeDiff <= previewArea.height) {
+                endPoint = startPoint + currentRangeDiff; 
+            }
         }
 
         //update range
@@ -254,14 +267,14 @@ const SmartScroll = function() {
             canvas.className = "preview-canvas";
 
             //record canvas height
-            _self.preview_height = newHeight; 
+            _self.previewHeight = newHeight; 
 
             //create scroll canvas  
-            _self.scroll_height =  (window.innerHeight / height) * (newHeight); 
+            _self.scrollHeight =  (window.innerHeight / height) * (newHeight); 
 
             var scrollCanvas = document.createElement("canvas"); 
             scrollCanvas.id = "SmartScroll-scroll-canvas"; 
-            scrollCanvas.style = "width: " + newWidth + "px; height: " + _self.scroll_height + "px;";
+            scrollCanvas.style = "width: " + newWidth + "px; height: " + _self.scrollHeight + "px;";
             scrollCanvas.className = "scroll-canvas"; 
             
             //add click event listener to canvas object 
@@ -320,13 +333,17 @@ const SmartScroll = function() {
         });
     }
 
+     //takes current y position of page, and moves the scroll canvas depending on proportion to current range
     _self.updateScrollCanvas = function(yPosition) {
-        //takes y position of page, and moves the scroll canvas depending on proportion to current range
-
         var proportion = (yPosition - _self.range[0]) / (_self.range[1] - _self.range[0]); 
-        var new_canvas_y = proportion * _self.preview_height; 
+        var new_canvas_y = proportion * _self.previewHeight; 
 
         document.documentElement.style.setProperty('--scroll-canvas-top', new_canvas_y + "px");
+    }
+
+    _self.handleWindowResizeEvent = function () {
+        console.log("window resizing finished");
+        _self.updatePreviewCanvas(window.scrollY, false); 
     }
 
     //open smartscroll 
