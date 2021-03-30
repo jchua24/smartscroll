@@ -69,7 +69,7 @@ const SmartScroll = function() {
         //window resize event handler - executes 100ms after the last resize event
         window.onresize = function () {
             clearTimeout(_self.resizeTimeout); 
-            _self.resizeTimeout = setTimeout(_self.handleWindowResizeEvent, 500);
+            _self.resizeTimeout = setTimeout(_self.handleWindowResizeEvent, 300);
         }
 
 	}
@@ -141,10 +141,10 @@ const SmartScroll = function() {
                 'button-text-color': 'gold'
             }, 
             {
-                'name': 'greys', 
-                'background-color': 'dark grey',
-                'button-color': 'light grey', 
-                'button-text-color': 'grey'
+                'name': 'Forest', 
+                'background-color': 'green',
+                'button-color': 'brown', 
+                'button-text-color': 'white'
             }, 
             {
                 'name': 'Lakers', 
@@ -372,6 +372,9 @@ const SmartScroll = function() {
         console.log("close settings!");
         const modalDiv = document.getElementById("SmartScroll-settings"); 
         modalDiv.style.display = "none";
+
+        //reload canvas preview 
+        _self.updatePreviewCanvas(window.scrollY, false); 
     }
 
 	return _self

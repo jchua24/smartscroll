@@ -33,15 +33,15 @@
 
   .settings-modal-content {
     background-color: var(--modal-background-color); 
-
+    position: absolute;
     padding: 20px; 
     border: 1px solid #888;
     height: 100%;
 
-    left: 40%; 
-    top: 40%;
-    width: 20%; 
-    height: 20%; 
+    left: 30%; 
+    top: 30%;
+    width: 30%; 
+    height: 30%; 
   }
 
   .canvas-container {
