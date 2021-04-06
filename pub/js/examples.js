@@ -1,12 +1,10 @@
 
+/* SmartScroll JS Library Example - Joshua Chua (CSC309) */
 
-import SmartScroll from "./SmartScroll.js";
-
-let scroll = null; 
+let scroll = new SmartScroll(); 
 
 window.initializeScroll = function() {
-    scroll = SmartScroll(); 
-
+   
     //ability to specify custom styles 
     const scrollStyles = {
         'background-color': 'red',

@@ -4,13 +4,26 @@
     position: fixed; 
     z-index: 2; 
     top: 0em;
-    left: 85%;
+    left: var(--modal-left);
     width: 15%; 
     height: 100%;
     overflow-y: hidden; 
     overflow-x: hidden;
   }
   
+
+  .modal2 {
+    display: none; 
+    position: fixed; 
+    z-index: 2; 
+    top: 0em;
+    left: 85%;
+    width: 15%; 
+    height: 100%;
+    overflow-y: hidden; 
+    overflow-x: hidden;
+  }
+
   .modal-content {
     background-color: var(--modal-background-color); 
     padding: 20px; 
