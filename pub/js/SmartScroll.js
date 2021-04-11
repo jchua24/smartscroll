@@ -1,9 +1,10 @@
 /* SmartScroll JS Library Implementation - Joshua Chua (CSC309) */
 "use strict";
+
+//external library to handle dom-to-canvas screenshotting
 import html2canvas from './html2canvas.esm.js'; 
 
-
-(function(global, document) { 
+(function(window, document) { 
 
 	function SmartScroll() {
 
@@ -77,8 +78,33 @@ import html2canvas from './html2canvas.esm.js';
             //window resize event handler - executes 100ms after the last resize event
             window.onresize = function () {
                 clearTimeout(smartscroll.resizeTimeout); 
-                smartscroll.resizeTimeout = setTimeout(smartscroll.handleWindowResizeEvent, 300);
+                smartscroll.resizeTimeout = setTimeout(smartscroll.updatePreviewCanvas(window.scrollY, false), 300);
             }
+
+            //handle keyboard shortcuts
+            document.onkeydown = function(e) {
+                //CTRL + SHIFT + something
+                if(e.ctrlKey && e.shiftKey){
+                    switch(e.code){
+                        case 'KeyO': //open
+                            console.log('keyboard shortcut - opening smartscroll');
+                            smartscroll.open(); 
+                            break;
+                        case 'KeyC': //close
+                            console.log('keyboard shortcut - closing smartscroll');
+                            smartscroll.close();
+                            break;  
+                        case 'KeyL': //left orientation
+                            console.log('keyboard shortcut - setting orientation to left');
+                            smartscroll.setModalOrientation("left");
+                            break;  
+                        case 'KeyR': //right orientation
+                            console.log('keyboard shortcut - setting orientation to right');
+                            smartscroll.setModalOrientation("right");
+                            break;  
+                    }
+                }
+              };
 
         }, 
 
@@ -287,7 +313,7 @@ import html2canvas from './html2canvas.esm.js';
             if(direction == "left") {
                 document.documentElement.style.setProperty('--modal-left', "0%");
             } else {
-                document.documentElement.style.setProperty('--modal-left', "85%");
+                document.documentElement.style.setProperty('--modal-left', "87%");
             }
 
         }, 
@@ -437,11 +463,6 @@ import html2canvas from './html2canvas.esm.js';
             document.documentElement.style.setProperty('--scroll-canvas-top', new_canvas_y + "px");
         }, 
 
-        handleWindowResizeEvent:  function () {
-            console.log("window resizing finished");
-            this.updatePreviewCanvas(window.scrollY, false); 
-        }, 
-
         //open smartscroll 
         open: function() { 
             console.log("open!");
@@ -453,9 +474,17 @@ import html2canvas from './html2canvas.esm.js';
         close: function () { 
             console.log("close!");
 
-            this.settingsClose(); //close settings window also 
+            //close settings modal first
+            const settingsModal = document.getElementById("SmartScroll-settings"); 
+            if(settingsModal) {
+                settingsModal.style.display = "none";
+            }
+
+            //close main modal
             const modalDiv = document.getElementById("SmartScroll"); 
-            modalDiv.style.display = "none";
+            if(modalDiv) {
+                modalDiv.style.display = "none";
+            }``
         }, 
 
         //open smartscroll settings
@@ -473,16 +502,13 @@ import html2canvas from './html2canvas.esm.js';
             if(modalDiv) {
                 modalDiv.style.display = "none";
             }
-
-            //reload canvas preview 
-            //this.updatePreviewCanvas(window.scrollY, false); 
         }
     }
 
-	// After setup: Add the SmartScroll function to the window object if it doesn't already exist.
-	global.SmartScroll = global.SmartScroll || SmartScroll;
+	//after setup: add the SmartScroll function to the window object if it doesn't already exist
+	window.SmartScroll = window.SmartScroll || SmartScroll;
 
-})(window, window.document); // pass the global window object and jquery to the anonymous function. They will now be locally scoped inside of the function.
+})(window, window.document); // pass the global window and document objects to the anonymous function (they will now be locally scoped inside of the function)
 
 
 
