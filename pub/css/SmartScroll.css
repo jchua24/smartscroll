@@ -56,12 +56,12 @@
   }
 
   .scroll-canvas {
-    top: var(--scroll-canvas-top);
+    /* top: var(--scroll-canvas-top); */
     left: 0; 
     position: absolute;
     background-color: grey; 
-    opacity: 0.3; 
-    pointer-events: none;
+    opacity: var(--scroll-canvas-opacity); 
+    /* pointer-events: none; */
   }
 
   .button {

@@ -87,19 +87,15 @@ import html2canvas from './html2canvas.esm.js';
                 if(e.ctrlKey && e.shiftKey){
                     switch(e.code){
                         case 'KeyO': //open
-                            console.log('keyboard shortcut - opening smartscroll');
                             smartscroll.open(); 
                             break;
                         case 'KeyC': //close
-                            console.log('keyboard shortcut - closing smartscroll');
                             smartscroll.close();
                             break;  
                         case 'KeyL': //left orientation
-                            console.log('keyboard shortcut - setting orientation to left');
                             smartscroll.setModalOrientation("left");
                             break;  
                         case 'KeyR': //right orientation
-                            console.log('keyboard shortcut - setting orientation to right');
                             smartscroll.setModalOrientation("right");
                             break;  
                     }
@@ -396,22 +392,30 @@ import html2canvas from './html2canvas.esm.js';
 
                 var scrollCanvas = document.createElement("canvas"); 
                 scrollCanvas.id = "SmartScroll-scroll-canvas"; 
-                scrollCanvas.style = "width: " + newWidth + "px; height: " + smartscroll.scrollHeight + "px;";
+                scrollCanvas.style = "width: " + newWidth + "px; height: " + smartscroll.scrollHeight + "px; top: var(--scroll-canvas-top);";
                 scrollCanvas.className = "scroll-canvas"; 
-                
+                scrollCanvas.draggable = "true";
+                document.documentElement.style.setProperty('--scroll-canvas-opacity', 0.3);
+
+                //add scroll canvas mouseover event 
+                scrollCanvas.addEventListener('mouseover', function(e) {
+                    document.documentElement.style.setProperty('--scroll-canvas-opacity', 0.5); //change opacity 
+                })
+
+                //add scroll canvas mouseout event 
+                scrollCanvas.addEventListener('mouseout', function(e) {
+                    document.documentElement.style.setProperty('--scroll-canvas-opacity', 0.3); //change opacity 
+                })
+           
                 //add click event listener to canvas object 
                 canvas.addEventListener('mousedown', function(e) {
                     const rect = canvas.getBoundingClientRect();
                     const x = e.clientX - rect.left; 
                     const y = e.clientY - rect.top; 
 
-                    console.log("x: " + x + " y: " + y)
-
                     //convert Y position on canvas to Y position in current range
                     const proportion = (y / newHeight); 
                     const newPosition = startPoint + (endPoint - startPoint) * proportion; 
-
-                    console.log("proportion: " + proportion);
                     
                     //scroll to new Y position 
                     window.scrollTo({
@@ -451,6 +455,18 @@ import html2canvas from './html2canvas.esm.js';
                 //append canvas div
                 contentDiv.appendChild(canvasContainer); 
 
+                //add scroll canvas drag/scroll functionality after it has been added to DOM
+                $('#SmartScroll-scroll-canvas').draggable(
+                    {
+                        axis:'y', 
+                        containment: canvasContainer,
+                        drag: function(event, ui) {
+                            smartscroll.dragToScroll(ui.position.top);
+                            console.log("drag event: " + ui.position.top);  
+                        }
+                    }
+                );
+ 
                 smartscroll.updating = false; 
             });
         }, 
@@ -458,22 +474,33 @@ import html2canvas from './html2canvas.esm.js';
         //takes current y position of page, and moves the scroll canvas depending on proportion to current range
         updateScrollCanvas: function(yPosition) {
             var proportion = (yPosition - this.range[0]) / (this.range[1] - this.range[0]); 
-            var new_canvas_y = proportion * this.previewHeight; 
+            var scrollCanvasPosition = proportion * this.previewHeight; 
 
-            document.documentElement.style.setProperty('--scroll-canvas-top', new_canvas_y + "px");
+            var scrollCanvas = document.getElementById("SmartScroll-scroll-canvas"); 
+            if(scrollCanvas != null) {
+                scrollCanvas.style.setProperty('top', "var(--scroll-canvas-top)");  
+            }
+
+            document.documentElement.style.setProperty('--scroll-canvas-top', scrollCanvasPosition + "px", "important");
         }, 
+
+        //upon a drag event on the scroll canvas, takes new scroll canvas position and adjusts page scroll accordingly
+        dragToScroll: function(scrollCanvasPosition) {
+
+            var proportion = scrollCanvasPosition / this.previewHeight; 
+            var newYPosition = proportion * (this.range[1] - this.range[0]) + this.range[0]; 
+
+            document.documentElement.scrollTop = newYPosition; 
+        },
 
         //open smartscroll 
         open: function() { 
-            console.log("open!");
             const modalDiv = document.getElementById("SmartScroll"); 
             modalDiv.style.display = "block";
         }, 
 
         //close smartscroll
         close: function () { 
-            console.log("close!");
-
             //close settings modal first
             const settingsModal = document.getElementById("SmartScroll-settings"); 
             if(settingsModal) {
@@ -489,14 +516,12 @@ import html2canvas from './html2canvas.esm.js';
 
         //open smartscroll settings
         settingsOpen:  function() { 
-            console.log("open settings!");
             const modalDiv = document.getElementById("SmartScroll-settings"); 
             modalDiv.style.display = "block";
         }, 
 
         //close smartscroll settings
         settingsClose: function() { 
-            console.log("close settings!");
             const modalDiv = document.getElementById("SmartScroll-settings"); 
             
             if(modalDiv) {
