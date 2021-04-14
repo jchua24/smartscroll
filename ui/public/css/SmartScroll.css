@@ -1,0 +1,88 @@
+
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 2; 
+    top: 0em;
+    left: var(--modal-left);
+    width: 13%; 
+    height: 100%;
+    overflow-y: hidden; 
+    overflow-x: hidden;
+  }
+  
+  .modal-content {
+    background-color: var(--modal-background-color); 
+    padding: 5px; 
+    border: 1px solid #888;
+    height: 100%;
+  }
+
+  .settings-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+  }
+
+  .settings-modal-content {
+    background-color: var(--modal-background-color); 
+    position: absolute;
+    padding: 20px; 
+    border: 1px solid #888;
+    height: 100%;
+
+    left: 30%; 
+    top: 30%;
+    width: 30%; 
+    height: 30%; 
+  }
+
+  .canvas-container {
+    position:absolute;
+    top: 4em; 
+  }
+ 
+  .preview-canvas {
+    top: 0;
+    left: 0; 
+    position: absolute;
+  }
+
+  .scroll-canvas {
+    /* top: var(--scroll-canvas-top); */
+    left: 0; 
+    position: absolute;
+    background-color: grey; 
+    opacity: var(--scroll-canvas-opacity); 
+    /* pointer-events: none; */
+  }
+
+  .button {
+    color: var(--modal-button-color);  
+    background-color: var(--modal-button-bg-color); 
+    float: right;
+    font-size: 1em;
+    font-weight: bold;
+  }
+  
+  .button:hover,
+  .button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .close {
+    float: right; 
+  }
+
+  .settings {
+    float: left; 
+  }

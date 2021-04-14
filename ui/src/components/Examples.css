@@ -1,0 +1,8 @@
+.instructions-list {
+    text-align: left; 
+}
+
+.instructions-list li{
+    margin-top: 2px; 
+    margin-bottom: 2px;
+}
