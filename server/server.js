@@ -6,14 +6,11 @@ const app = express();
 
 const path = require('path');
 
-// Setting up a static directory for the files in /pub
-// using Express middleware.
-app.use(express.static(path.join(__dirname, '/pub')))
+//serve react build
+const buildPath = path.join(__dirname,  "/build");
+app.use(express.static(buildPath));
+app.use("/static", express.static(path.join(__dirname, "build/static")));
 
-
-app.get('/', (req, res) => {
-	res.send('sample SmartScroll app!');
-})
 
 const port = process.env.PORT || 5000
 app.listen(port, () => {
