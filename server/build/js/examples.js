@@ -5,6 +5,7 @@ let scroll = new SmartScroll();
 
 window.initializeScroll = function() {
    
+ 
     //ability to specify custom styles 
     const scrollStyles = {
         'background-color': 'red',
@@ -18,4 +19,5 @@ window.initializeScroll = function() {
 window.openScroll = function() {
     scroll.open(); 
 }
+
 
