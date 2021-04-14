@@ -1,4 +1,4 @@
-## Important Resources
+## Welcome to SmartScroll! Here are some important resources: 
 
 Deployed Landing Page: https://smartscroll.herokuapp.com/
 
