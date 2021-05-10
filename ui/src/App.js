@@ -34,7 +34,7 @@ function App() {
       </Router> 
 
       <div className="App-footer"> 
-        CSC309 Individual Project - Joshua Chua (chuajos2)
+        Made by Joshua Chua 
       </div> 
     </div>
 
